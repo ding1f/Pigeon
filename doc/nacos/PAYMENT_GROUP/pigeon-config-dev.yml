@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql的地址/pigeon?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 你的密码
+  mybatis-plus:
+    global-config:
+      db-config:
+        logic-delete-field: is_deleted #默认deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+    mapper-locations: classpath:/mapper/**/*Mapper.xml
+    type-aliases-package: com.pigeon.entity
+pigeon:
+  system:
+    worker-id: 11
+    datacenter-id: 1
+  middleware:
+    redis:
+      enabled: true
+      host: redis的地址
+      password: 你的密码
+      database: 11
+      port: 6379

@@ -1,0 +1,38 @@
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user_center_service
+          uri: lb://pigeon-user-center-service
+          predicates:
+            - Path=/account/**,/role/**,/permission/**,/menu/**
+        - id: payment_service
+          uri: lb://pigeon-payment-service
+          predicates:
+            - Path=/payment/**
+        - id: warehouse_service
+          uri: lb://pigeon-warehouse-service
+          predicates:
+            - Path=/warehouse/**
+        - id: order_service
+          uri: lb://pigeon-order-service
+          predicates:
+            - Path=/order/**
+        - id: demo_service
+          uri: lb://pigeon-demo-service
+          predicates:
+            - Path=/demo/**
+pigeon:
+  middleware:
+    redis:
+      enabled: true
+      host: redis的地址
+      password: 你的密码
+      database: 9
+      port: 6379

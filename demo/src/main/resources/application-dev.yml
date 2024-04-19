@@ -1,0 +1,9 @@
+pigeon:
+  test: 123
+  middleware:
+    redis:
+      enabled: true
+      host-name: redis的地址
+      password: 你的密码
+      database: 10
+      port: 6379

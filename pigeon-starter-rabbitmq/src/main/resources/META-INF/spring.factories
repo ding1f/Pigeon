@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.pigeon.config.RabbitMQConfig, \
+  com.pigeon.config.RabbitMQPropertiesConfig

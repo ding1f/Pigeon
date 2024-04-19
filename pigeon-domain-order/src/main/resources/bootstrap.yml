@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: pigeon-order-service
+  cloud:
+    nacos:
+      discovery:
+        namespace: ec4aba1e-9320-4b81-95d0-5ff9ba469ef1
+        server-addr: nacos的地址
+      config:
+        server-addr: nacos的地址
+        namespace: ec4aba1e-9320-4b81-95d0-5ff9ba469ef1
+        group: ORDER_GROUP
+        file-extension: yml
+        prefix: pigeon-config
+        extension-configs:
+          - data-id: pigeon-common-dev.yml
+            group: COMMON_GROUP
+            refresh: true
+seata:
+  enabled: true
+  enable-auto-data-source-proxy: false
+  application-id: ${spring.application.name}
+  tx-service-group: default_tx_group
+  service:
+    vgroup-mapping:
+      default_tx_group: default

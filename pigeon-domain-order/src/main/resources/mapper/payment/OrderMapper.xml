@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pigeon.dao.order.OrderMapper">
+
+    <resultMap type="com.pigeon.entity.order.po.OrderPO" id="customOrderMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="userId" column="userId"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <resultMap type="com.pigeon.entity.order.vo.OrderResultVO" id="orderResultVOMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="userId" column="userId"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="getOrderByPage" parameterType="com.pigeon.entity.order.vo.OrderQueryVO" resultMap="orderResultVOMap">
+        select * from custom_order
+        <where>
+            <if test="objectId != null">
+                and object_id like concat('%', #{objectId}, '%')
+            </if>
+            <if test="userId != null">
+                and userId = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

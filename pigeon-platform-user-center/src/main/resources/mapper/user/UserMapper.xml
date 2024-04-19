@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pigeon.dao.user.UserMapper">
+
+    <resultMap type="com.pigeon.entity.user.po.UserPO" id="customUserMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="telephone" column="telephone"/>
+        <result property="email" column="email"/>
+        <result property="location" column="location"/>
+    </resultMap>
+
+    <resultMap type="com.pigeon.entity.user.vo.UserResultVO" id="userResultVOMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="username" column="username"/>
+        <result property="telephone" column="telephone"/>
+        <result property="email" column="email"/>
+        <result property="location" column="location"/>
+    </resultMap>
+
+    <!-- 根据用户名获取用户信息 -->
+    <select id="getUserByUsername" parameterType="java.lang.String" resultType="com.pigeon.entity.user.po.UserPO">
+        select *
+        from system_user
+        where username = #{name}
+    </select>
+
+    <!-- 通过用户名或者邮箱或者手机号获取用户 -->
+    <select id="getUserByUsernameOrEmailOrTelephone" parameterType="java.lang.String" resultType="com.pigeon.entity.user.po.UserPO">
+        select *
+        from system_user
+        where username = #{name} OR email = #{name} OR telephone = #{name}
+    </select>
+
+    <!-- 根据userId获取用户信息 -->
+    <select id="getUserById" parameterType="java.lang.String" resultType="com.pigeon.entity.user.po.UserPO">
+        select *
+        from system_user
+        where object_id = #{id}
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="getAccountByPage" parameterType="com.pigeon.entity.user.vo.UserQueryVO" resultMap="userResultVOMap">
+        select * from system_user
+        <where>
+            <if test="objectId != null">
+                and object_id like concat('%', #{objectId}, '%')
+            </if>
+            <if test="username != null">
+                and username like concat('%', #{username}, '%')
+            </if>
+            <if test="telephone != null">
+                and telephone like concat('%', #{telephone}, '%')
+            </if>
+            <if test="email != null">
+                and email like concat('%', #{email}, '%')
+            </if>
+            <if test="location != null">
+                and location like concat('%', #{location}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 结果映射：权限 -->
+    <resultMap id="PermissionResultMap" type="com.pigeon.entity.permission.po.PermissionPO">
+        <id column="permission_id" property="objectId"/>
+        <result property="name" column="permission_name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <!-- 结果映射：菜单 -->
+    <resultMap id="MenuResultMap" type="com.pigeon.entity.menu.po.MenuPO">
+        <id column="menu_id" property="objectId"/>
+        <result property="name" column="menu_name"/>
+        <result property="parentId" column="parent_id"/>
+    </resultMap>
+
+    <!-- 结果映射：角色 -->
+    <resultMap id="RoleResultMap" type="com.pigeon.entity.role.po.RolePermissionsMenusPO">
+        <id column="role_id" property="objectId"/>
+        <result property="name" column="role_name"/>
+        <collection property="permissions" ofType="com.pigeon.entity.permission.po.PermissionPO" resultMap="PermissionResultMap"/>
+        <collection property="menus" ofType="com.pigeon.entity.menu.po.MenuPO" resultMap="MenuResultMap"/>
+    </resultMap>
+
+    <!-- 结果映射：用户 -->
+    <resultMap id="UserResultMap" type="com.pigeon.entity.user.po.UserRolesPermissionsMenusPO">
+        <id column="user_id" property="objectId"/>
+        <result column="username" property="username"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <result column="location" property="location"/>
+        <collection property="roles" ofType="com.pigeon.entity.role.po.RolePermissionsMenusPO" resultMap="RoleResultMap"/>
+    </resultMap>
+
+    <!-- 查询用户及其角色、权限和菜单 -->
+    <select id="getUserWithRolesPermissionsAndMenus" resultMap="UserResultMap">
+        SELECT
+            u.object_id AS user_id,
+            u.username,
+            u.telephone,
+            u.email,
+            u.location,
+            r.object_id AS role_id,
+            r.NAME AS role_name,
+            p.object_id AS permission_id,
+            p.NAME AS permission_name,
+            p.description,
+            m.object_id AS menu_id,
+            m.NAME AS menu_name,
+            m.parent_id
+        FROM
+            system_user u
+            INNER JOIN system_user_roles ur ON u.object_id = ur.user_id
+            INNER JOIN system_role r ON ur.role_id = r.object_id
+            INNER JOIN system_role_permissions rp ON r.object_id = rp.role_id
+            INNER JOIN system_permission p ON rp.permission_id = p.object_id
+            INNER JOIN system_role_menus rm ON r.object_id = rm.role_id
+            INNER JOIN system_menu m ON rm.menu_id = m.object_id
+        <where>
+            u.object_id = #{userId}
+        </where>
+    </select>
+
+    <!-- 根据用户角色获取角色名 主要用来查重 -->
+    <select id="getRoleNameByUserRole" resultType="java.lang.String">
+        SELECT
+            distinct r.NAME
+        FROM
+            system_user_roles ur
+            LEFT JOIN system_role r ON ur.role_id = r.object_id
+        WHERE
+            ur.user_id = #{userId}
+            AND ur.role_id = #{roleId}
+    </select>
+
+    <!-- 为用户授予角色 -->
+    <insert id="grantUserRoles" parameterType="java.util.List">
+        INSERT INTO system_user_roles (object_id, is_deleted, revision, created_by, created_time, updated_by, updated_time, user_id, role_id)
+        VALUES
+        <foreach collection="userRoles" item="role" index="index" separator=",">
+            (#{role.objectId}, #{role.isDeleted}, #{role.revision}, #{role.createdBy}, #{role.createdTime}, #{role.updatedBy}, #{role.updatedTime}, #{role.userId}, #{role.roleId})
+        </foreach>
+    </insert>
+
+</mapper>

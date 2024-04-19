@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.pigeon.config.RedisConfig, \
+  com.pigeon.config.RedisPropertiesConfig, \
+  com.pigeon.config.RedissonConfig

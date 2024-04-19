@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pigeon.dao.permission.PermissionMapper">
+
+    <resultMap type="com.pigeon.entity.permission.po.PermissionPO" id="customPermissionMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <resultMap type="com.pigeon.entity.permission.vo.PermissionResultVO" id="permissionResultVOMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <!-- 根据用户id获取权限 -->
+    <select id="getPermissionsByUserId" parameterType="java.lang.String" resultMap="customPermissionMap">
+        select * from system_permission where object_id in (
+            select distinct permission_id from system_role_permissions where role_id in (
+                select role_id from system_user_roles where user_id = #{id}
+                )
+            )
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="getPermissionByPage" parameterType="com.pigeon.entity.permission.vo.PermissionQueryVO" resultMap="permissionResultVOMap">
+        select * from system_permission
+        <where>
+            <if test="objectId != null">
+                and object_id like concat('%', #{objectId}, '%')
+            </if>
+            <if test="name != null">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="description != null">
+                and description like concat('%', #{description}, '%')
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

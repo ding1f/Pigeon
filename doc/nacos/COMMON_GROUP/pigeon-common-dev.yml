@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    hikari:
+        connection-timeout: 10000
+        validation-timeout: 3000
+        idle-timeout: 60000
+        login-timeout: 5    
+        max-lifetime: 60000
+        maximum-pool-size: 10
+        minimum-idle: 5
+        read-only: false
+pigeon:
+  middleware:
+    security:
+      sso-enabled: true
+      white-list:
+        - /account/login
+        - /account/register
+        - /account/logout
+      access-token-validity-seconds: 7200
+      user-info-validity-seconds: 259200
+      # refresh-token-validity-seconds: 259200
+      signing-key: PiGeOn
+      set-token-prefix: "auth-token:"
+      get-token-prefix: "auth-token:access:"
+      user-info-prefix: "user-info:"
+      fetch-permission-path: /account/fetchPermissionsFromCache
+    rabbitmq:
+      enabled: true
+      host: rabbitmq的地址
+      port: 5672
+      userName: admin
+      passWord: 你的密码
+      vHost: /pigeon
+      concurrentConsumers: 1
+      maxConcurrentConsumers: 1
+      resendFreq: 1000
+      redis-key-prefix: "rabbitmq:"
+

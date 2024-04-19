@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: pigeon-demo-service
+  cloud:
+    nacos:
+      discovery:
+        namespace: ec4aba1e-9320-4b81-95d0-5ff9ba469ef1
+        server-addr: nacos的地址
+      config:
+        server-addr: nacos的地址
+        namespace: ec4aba1e-9320-4b81-95d0-5ff9ba469ef1
+        group: PAYMENT_GROUP
+        file-extension: yml
+        prefix: pigeon-config
+        extension-configs:
+          - data-id: pigeon-common-dev.yml
+            group: COMMON_GROUP
+            refresh: true
+
