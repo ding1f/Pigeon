@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pigeon.dao.CustomMapper">
+
+    <select id="checkUnique" resultType="java.lang.Integer">
+        SELECT COUNT(object_id) FROM ${tableName}
+        <where>
+            ${key} = #{value}
+        </where>
+    </select>
+
+    <delete id="trueDelete">
+        DELETE
+        FROM ${tableName}
+        WHERE object_id = #{objectId}
+    </delete>
+</mapper>

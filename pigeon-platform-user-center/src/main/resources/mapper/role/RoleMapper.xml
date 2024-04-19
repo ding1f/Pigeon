@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pigeon.dao.role.RoleMapper">
+
+    <resultMap type="com.pigeon.entity.role.po.RolePO" id="customRoleMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <resultMap type="com.pigeon.entity.role.vo.RoleResultVO" id="roleResultVOMap">
+        <result property="objectId" column="object_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="revision" column="revision"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="getRoleByPage" parameterType="com.pigeon.entity.role.vo.RoleQueryVO" resultMap="roleResultVOMap">
+        select * from system_role
+        <where>
+            <if test="objectId != null">
+                and object_id like concat('%', #{objectId}, '%')
+            </if>
+            <if test="name != null">
+                and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据角色权限获取权限名 主要用来查重 -->
+    <select id="getPermissionNameByRolePermission" resultType="java.lang.String">
+        SELECT
+            distinct CONCAT(p.NAME, ' - ', p.description)
+        FROM
+            system_role_permissions rp
+            LEFT JOIN system_permission p ON rp.permission_id = p.object_id
+        WHERE
+            rp.role_id = #{roleId}
+          AND rp.permission_id = #{permissionId}
+    </select>
+
+    <!-- 为角色授予权限 -->
+    <insert id="grantRolePermissions" parameterType="java.util.List">
+        INSERT INTO system_role_permissions (object_id, is_deleted, revision, created_by, created_time, updated_by, updated_time, role_id, permission_id)
+        VALUES
+        <foreach collection="rolePermissions" item="permission" index="index" separator=",">
+            (#{permission.objectId}, #{permission.isDeleted}, #{permission.revision}, #{permission.createdBy}, #{permission.createdTime}, #{permission.updatedBy}, #{permission.updatedTime}, #{permission.roleId}, #{permission.permissionId})
+        </foreach>
+    </insert>
+
+    <!-- 根据菜单名获取菜单 -->
+    <select id="getMenuNameByRoleMenu" resultType="java.lang.String">
+        SELECT
+            distinct CONCAT(m.NAME, ' - ', m.path)
+        FROM
+            system_role_menus rm
+            LEFT JOIN system_menu m ON rm.menu_id = m.object_id
+        WHERE
+            rm.role_id = #{roleId}
+          AND rm.menu_id = #{menuId}
+    </select>
+
+    <!-- 给角色授予菜单 -->
+    <insert id="grantRoleMenus">
+        INSERT INTO system_role_menus (object_id, is_deleted, revision, created_by, created_time, updated_by, updated_time, role_id, menu_id)
+        VALUES
+        <foreach collection="roleMenus" item="menu" index="index" separator=",">
+            (#{menu.objectId}, #{menu.isDeleted}, #{menu.revision}, #{menu.createdBy}, #{menu.createdTime}, #{menu.updatedBy}, #{menu.updatedTime}, #{menu.roleId}, #{menu.menuId})
+        </foreach>
+    </insert>
+
+    <!-- 根据角色ID获取所有拥有该角色的用户 -->
+    <select id="getUserObjectIdByRoleId" parameterType="java.lang.String" resultType="java.lang.String">
+        select user_id from system_user_roles where role_id = #{id}
+    </select>
+
+</mapper>
